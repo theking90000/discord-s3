@@ -30,7 +30,7 @@ export class ClientFileUploader extends FileUploader {
     protected async _upload(stream: Readable): Promise<string> {
         const { attachments } = await this.channel.uploadFile(stream, {
             contentType: "application/octet-stream",
-            filename: "__file"
+            filename: "file.dat"
         })
         return attachments[0].url
     }

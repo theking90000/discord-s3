@@ -1,5 +1,6 @@
-import Client from "./client/Client"
-import Channel from "./client/Channel"
+import Client from "./client/Client";
+import Channel from "./client/Channel";
 
-export { Client,Channel };
+export { Client, Channel };
 
+console.log("ok");

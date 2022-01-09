@@ -8,7 +8,7 @@
   "private": true,
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -b",
+    "build": "tsc -b --force",
     "clean": "rm -rf ./dist"
   },
   "dependencies": {

@@ -1,0 +1,35 @@
+{
+  "name": "@discord-s3/s3-admin",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "dev": "next dev",
+    "next:build": "next build",
+    "next:start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "@chakra-ui/icons": "^1.0.5",
+    "@chakra-ui/react": "^1.4.2",
+    "@chakra-ui/theme-tools": "1.1.2",
+    "@emotion/react": "11.1.5",
+    "@emotion/styled": "11.1.5",
+    "axios": "^0.24.0",
+    "framer-motion": "^4.0.3",
+    "next": "latest",
+    "next-i18next": "^10.0.1",
+    "pretty-bytes": "^5.6.0",
+    "react": "^17.0.2",
+    "react-dom": "^17.0.2",
+    "react-dropzone": "^11.4.2",
+    "react-icons": "^4.3.1",
+    "react-query": "^3.34.0",
+    "zustand": "^3.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "^14.6.0",
+    "@types/react": "^17.0.3",
+    "@types/react-dom": "^17.0.3",
+    "typescript": "4.3.2"
+  }
+}

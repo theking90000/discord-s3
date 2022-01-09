@@ -2,13 +2,25 @@
   "name": "root",
   "private": true,
   "devDependencies": {
+    "dotenv": "^10.0.0",
     "lerna": "^4.0.0",
+    "nodemon": "^2.0.15",
     "typescript": "^4.5.2"
   },
   "workspaces": [
     "packages/**"
   ],
   "scripts": {
-    "dev:run": "lerna run build && node packages/discord-file-upload/dist"
+    "boostrap": "yarn install && lerna bootstrap",
+    "loadenv": "node -r ./config.dotenv.js",
+    "lerna": "yarn loadenv node_modules/lerna/cli.js",
+    "run:project": "yarn run:all --scope",
+    "run:all": "yarn lerna run --stream",
+    "start:server": "yarn run:project @discord-s3/s3-server start",
+    "build:all": "yarn run:all build",
+    "dev": "yarn build:all && yarn start:server",
+    "dev:watch": "nodemon -w ./packages -e 'ts' -x yarn dev",
+    "dev:admin": "yarn run:project @discord-s3/s3-admin dev",
+    "pkg:add": "lerna add --scope"
   }
 }

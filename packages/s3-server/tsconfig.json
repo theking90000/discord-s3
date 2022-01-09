@@ -1,0 +1,20 @@
+{
+  "extends": "../../tsconfig.json",
+  "compilerOptions": {
+    "outDir": "dist",
+    "rootDir": "src",
+    "module": "ESNext",
+    "moduleResolution": "node",
+    "target": "ES2018",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "baseUrl": "../..",
+    "paths": {
+      "mongoose": ["node_modules/@alttypes/mongoose"]
+    }
+  },
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}

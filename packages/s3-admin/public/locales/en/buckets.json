@@ -1,0 +1,6 @@
+{
+  "buckets": "Your Buckets",
+  "used_data": "Bucket size : {{used}}",
+  "explore": "Explore your files",
+  "file_size": "Size: {{size}}"
+}
