@@ -21,6 +21,7 @@ const page: FC<{ id: string; path: string[] }> = ({ id, path }) => {
     bucketId: id,
     currentPath: path?.join("/") ?? "",
   });
+
   return (
     <SideBar>
       <Box {...getRootProps()} mx="10" my="2" height="100%" minHeight="250px">
@@ -30,9 +31,19 @@ const page: FC<{ id: string; path: string[] }> = ({ id, path }) => {
         {data && (
           <VStack>
             {data
-              .filter(
-                (item) => item.path.split("/").length === path?.length || 1
-              )
+              .reduce((acc, item) => {
+                console.log("item", item.path);
+                const p = item.path.split("/")[path?.length || 0];
+                const sameDirItem = acc.find(
+                  (i) => i.path.split("/")[path?.length || 0] === p
+                );
+                if (!sameDirItem) {
+                  acc.push(item);
+                } else {
+                  sameDirItem.size += item.size;
+                }
+                return acc;
+              }, [])
               .map((object) => (
                 <DisplayInfo
                   bucketId={id}
@@ -40,10 +51,9 @@ const page: FC<{ id: string; path: string[] }> = ({ id, path }) => {
                   key={object._id}
                   {...object}
                   isFolder={
-                    !!data.find(
-                      ({ path }) =>
-                        path !== object.path && path.startsWith(object.path)
-                    )
+                    object.path.split("/").length -
+                      (path && path[0] !== "" ? 1 : 0) !==
+                    (path?.length || 1)
                   }
                 />
               ))}
@@ -66,7 +76,7 @@ const DisplayInfo: FC<
         : "/buckets/[id]/file/[file_id]",
       query: isFolder
         ? {
-            path,
+            path: path.split("/").filter((path, i) => i <= currentPath.length),
             id: bucketId,
           }
         : {

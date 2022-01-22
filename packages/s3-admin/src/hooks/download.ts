@@ -65,10 +65,22 @@ function appendToList(fn?: () => any, end?: () => any) {
   }
 }
 
-const useFileDownloader = (bucketId: string, fileId: string) => {
+const useFileDownloader = (bucketId: string, fileId: string, path?: string) => {
+  const [isDownloading, setDownloadStatus] = useState(false);
   return {
+    isDownloading,
+    stream: async () => {
+      const {
+        data: { token },
+      } = await axiosApiClient.get<{ token: string }>(
+        `/buckets/${bucketId}/${fileId}/download?stream=1`
+      );
+      console.log(token);
+      return token;
+    },
     directDownload: async () => {
       try {
+        setDownloadStatus(true);
         const res = await axiosApiClient({
           url: `/buckets/${bucketId}/${fileId}/download`,
           responseType: "blob",
@@ -79,13 +91,14 @@ const useFileDownloader = (bucketId: string, fileId: string) => {
         let url = URL.createObjectURL(new Blob([res.data]));
         let a = document.createElement("a");
         a.href = url;
-        a.download = fileId.split("/").pop();
+        a.download = path?.split("/")?.pop() || fileId;
         document.body.appendChild(a);
         a.click();
         a.remove();
       } catch (e) {
         console.error(e);
       }
+      setDownloadStatus(false);
     },
     download: async () => {
       const parts = await axiosApiClient.get<ObjectPart[]>(

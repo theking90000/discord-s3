@@ -11,7 +11,7 @@ import {
   useDisclosure,
 } from "@chakra-ui/react";
 import { FiMenu } from "react-icons/fi";
-import { BsBucketFill } from "react-icons/bs";
+import { BsBucketFill, BsCloudFill } from "react-icons/bs";
 import Link from "next/link";
 import { FC } from "react";
 import ThemeToggler from "./ThemeToggler";
@@ -20,6 +20,7 @@ import { FaUser } from "react-icons/fa";
 import { useFetchQuery } from "../lib/data-fetch";
 import { User } from "../lib/data";
 import FileUploadDisplay from "./FileUploadDisplay";
+import { useTranslation } from "next-i18next";
 
 export interface Links {
   icon?: any;
@@ -32,6 +33,11 @@ const DEFAULT_LINKS: Links[] = [
     name: "buckets",
     url: "/buckets",
     icon: <BsBucketFill />,
+  },
+  {
+    name: "providers",
+    url: "/providers",
+    icon: <BsCloudFill />,
   },
 ];
 
@@ -72,6 +78,7 @@ const Content: FC<{ onClose: () => void; links: Links[]; display?: any }> = ({
   links,
   display = {},
 }) => {
+  const { t } = useTranslation("common");
   return (
     <Box
       transition="3s ease"
@@ -90,7 +97,7 @@ const Content: FC<{ onClose: () => void; links: Links[]; display?: any }> = ({
       {links.map((link) => (
         <NavItem key={link.url} {...link}>
           <Text fontFamily="monospace" fontSize="lg">
-            {link.name}
+            {t(link.name)}
           </Text>
         </NavItem>
       ))}

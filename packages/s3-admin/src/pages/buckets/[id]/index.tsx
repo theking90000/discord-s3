@@ -41,6 +41,9 @@ const page: FC<{ id: string }> = ({ id }) => {
               <Link href={`/buckets/${id}/explore`}>
                 <Button>{t("explore")}</Button>
               </Link>
+              <Link href={`/buckets/${id}/keys`}>
+                <Button>{t("keys")}</Button>
+              </Link>
             </Box>
           </Box>
         )}

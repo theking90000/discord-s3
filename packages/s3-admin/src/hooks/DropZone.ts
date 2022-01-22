@@ -46,24 +46,24 @@ function dropZone({
   bucketId: string;
   currentPath: string;
 }) {
-  console.log("call");
   const addFile = fileUploadStore((state) => state.addFile);
   const updateFile = fileUploadStore((state) => state.updateFile);
   const removeFile = fileUploadStore((state) => state.removeFile);
   const setUpdating = fileUploadStore((state) => state.setUpdating);
 
   const onDrop = useCallback(
-    (acceptedFiles: File[]) => {
+    async (acceptedFiles: File[]) => {
       if (acceptedFiles.length < 1) return;
       setUpdating(true);
       for (const file of acceptedFiles) {
         let bId = bucketId;
+
         let path = (file as any).path;
         if (path[0] === "/") {
-          path = path.subString(1);
+          path = path.substring(1);
         }
         if (currentPath) {
-          path = currentPath + path;
+          path = currentPath + "/" + path;
         }
         let f = {
           bucketId: bId,
@@ -72,6 +72,7 @@ function dropZone({
           uploaded: 0,
         };
         addFile(f);
+
         appendToList(async () => {
           const formData = new FormData();
           formData.append(
@@ -79,6 +80,7 @@ function dropZone({
             JSON.stringify({
               path,
               size: file.size,
+              contentType: file.type,
             })
           );
           formData.append("file", file);

@@ -10,6 +10,7 @@ import { User } from "../../models/User";
 import { UnauthorizedError } from "http-errors-enhanced";
 import fastifyHttpErrorsEnhanced from "fastify-http-errors-enhanced";
 import buckets from "./buckets";
+import providers from "./providers";
 
 export default async function (
   fastify: FastifyInstance,
@@ -39,6 +40,9 @@ export default async function (
           throw e;
         }
       }
+      if (req.routerPath === "/api/buckets/:id/:fileId/stream") {
+        return next();
+      }
 
       throw new UnauthorizedError("Valid authorization is required");
     }
@@ -49,6 +53,9 @@ export default async function (
   });
   fastify.register(buckets, {
     prefix: "/buckets",
+  });
+  fastify.register(providers, {
+    prefix: "/providers",
   });
 
   done();

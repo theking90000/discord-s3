@@ -31,3 +31,17 @@ export interface ObjectPart extends DataBaseObject {
   encryptionKey?: string;
   iv?: string;
 }
+
+export interface CloudProvider extends DataBaseObject {
+  user: string;
+  discordWebhook: string;
+  discordBotToken: string;
+  discordChannelId: string;
+  telegramInfos: any;
+}
+
+export interface AccessKey extends DataBaseObject {
+  keyId: string;
+  keySecret: string;
+  bucket: string;
+}

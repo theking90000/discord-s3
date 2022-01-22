@@ -1,36 +1,43 @@
 import api from "./api/api";
-import {FastifyInstance, FastifyReply, FastifyRequest, HookHandlerDoneFunction} from "fastify";
-import {User} from "../models/User";
+import {
+  FastifyInstance,
+  FastifyReply,
+  FastifyRequest,
+  HookHandlerDoneFunction,
+} from "fastify";
+import { User } from "../models/User";
 import jwt from "jsonwebtoken";
 
-
 // @ts-ignore
-export default async function (fastify: FastifyInstance, opts: {}, done: HookHandlerDoneFunction) {
+export default async function (
+  fastify: FastifyInstance,
+  opts: {},
+  done: HookHandlerDoneFunction
+) {
+  fastify.get("/test", async () => {
+    process.exit();
+  });
 
-    fastify.get('/test', async () => {
-        const user = new User({
-            password: "@lolz",
-            name: "theking"
-        });
-        if (user.save) await user.save();
-        return {user, token: jwt.sign({id: user._id}, process.env.JWT_KEY as string)};
-    })
+  fastify.post(
+    "/auth",
+    {
+      schema: {
+        body: {
+          password: { type: "string" },
+          name: { type: "string" },
+        },
+      },
+    },
+    async (req: FastifyRequest, res: FastifyReply) => {
+      return User.authenticateUser(
+        req.body as { password: string; name: string }
+      );
+    }
+  );
 
-    fastify.post('/auth', {
-        schema: {
-            body: {
-                password: {type: 'string'},
-                name: {type: 'string'}
-            }
-        }
-    }, async (req: FastifyRequest, res: FastifyReply) => {
-        return User.authenticateUser(req.body as { password: string; name: string });
-    })
+  fastify.register(api, {
+    prefix: "/api",
+  });
 
-    fastify.register(api, {
-        prefix: "/api"
-    })
-
-    done()
-
+  done();
 }

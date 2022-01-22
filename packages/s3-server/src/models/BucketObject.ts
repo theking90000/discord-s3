@@ -8,7 +8,7 @@ import {
 } from "mongoose-decorators-ts";
 import mongoose, { Connection } from "mongoose";
 
-@schemaDef({})
+@schemaDef({ schemaOpts: { timestamps: true } })
 export class BucketObjectSchema {
   @required()
   path!: string;
@@ -17,7 +17,19 @@ export class BucketObjectSchema {
   bucket!: string;
 
   @field()
+  isInternalDir?: boolean;
+
+  @field()
   size!: number;
+
+  @field()
+  createdAt!: Date;
+
+  @field()
+  updatedAt!: Date;
+
+  @field()
+  contentType?: string;
 }
 
 export const BucketObject = getModel();

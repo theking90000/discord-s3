@@ -1,7 +1,10 @@
-import FileUploader from "./FileUploader";
+import FileUploader, { UploadedChunk } from "./FileUploader";
 import { Readable } from "stream";
 import RestManager from "@discord-s3/discord-client/dist/rest/RestManager";
 import FormData from "form-data";
+import { download } from "./defaultDownloader";
+import CustomDownloadStream from "./CustomDownloadStream";
+import { get } from "https";
 
 const MAX_UPLOAD_SIZE = 8 * 1024 * 1000;
 
@@ -33,6 +36,21 @@ export default class WebHookFileUploader extends FileUploader {
     this.webHookId = params.pop() as string;
 
     this.restManager = new RestManager({});
+  }
+  protected async _download(url: string): Promise<CustomDownloadStream> {
+    return new CustomDownloadStream({
+      read: () => {
+        const stream = new Readable();
+
+        get(url, (res) => {
+          res.on("data", (data) => stream.push(data));
+          res.on("end", () => stream.emit("end"));
+        });
+
+        return stream;
+      },
+      chunkSize: MAX_UPLOAD_SIZE,
+    });
   }
 
   protected async _upload(stream: Readable): Promise<string> {

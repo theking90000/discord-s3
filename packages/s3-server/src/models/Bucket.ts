@@ -20,11 +20,15 @@ export class BucketSchema {
   @field()
   size?: number;
 
+  @ref("SourceProvider")
+  provider!: string;
+
   async getObjectsInfo(): Promise<{ totalSize: number; count: number }> {
     const results = await BucketObject.aggregate([
       {
         $match: {
           bucket: (this as any)._id,
+          isInternalDir: false,
         },
       },
       {
