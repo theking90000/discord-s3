@@ -17,11 +17,11 @@
     "run:project": "yarn run:all --scope",
     "run:all": "yarn lerna run --stream",
     "start:server": "yarn run:project @discord-s3/s3-server start",
-    "build:all": "yarn run:all build",
+    "build:all": "yarn run:project @discord-s3/discord-client build && yarn lerna bootstrap && yarn run:project @discord-s3/discord-file-upload build && yarn lerna bootstrap && yarn run:project @discord-s3/s3-server build",
     "dev": "yarn build:all && yarn start:server",
+    "prod": "yarn build:all",
     "dev:watch": "nodemon -w ./packages -e 'ts' -x yarn dev",
     "dev:admin": "yarn run:project @discord-s3/s3-admin dev",
-    "pkg:add": "lerna add --scope",
-    "mongo-express": "yarn loadenv && mongo-express --url $MONGO_URL"
+    "pkg:add": "lerna add --scope"
   }
 }

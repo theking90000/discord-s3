@@ -75,7 +75,8 @@ export default function (
       const paths = (req.params as { "*": string })["*"].split("/");
 
       const bucket = await Bucket.findOne({
-        $and: [{ _id: id }, { user: user }],
+        _id: id as any,
+        user: user,
       });
 
       if (!bucket) {
@@ -109,7 +110,8 @@ export default function (
       const { id } = req.params as { id: string };
 
       const bucket = await Bucket.findOne({
-        $and: [{ _id: id }, { user: user }],
+        _id: id as any,
+        user: user,
       });
 
       if (!bucket) {
@@ -129,7 +131,8 @@ export default function (
     const user = req?.user!.id;
     const { id } = req.params as { id: string };
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
     await bucket?.remove!();
   });
@@ -139,7 +142,8 @@ export default function (
     const { id, fileId } = req.params as { id: string; fileId: string };
 
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
 
     if (!bucket) {
@@ -155,7 +159,7 @@ export default function (
           isInternalDir: false,
         },
         {
-          _id: fileId,
+          _id: fileId as any,
         },
       ],
     });
@@ -167,7 +171,8 @@ export default function (
     const { id } = req.params as { id: string };
 
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
 
     if (!bucket) {
@@ -199,8 +204,8 @@ export default function (
     await object.save!();
 
     return await uploadFilePart({
-      _id: object._id,
-      stream: data.file as ReadStream,
+      _id: object._id as any,
+      stream: data.file as any,
       provider,
     });
   });
@@ -211,7 +216,8 @@ export default function (
     const { id, fileId } = req.params as { id: string; fileId: string };
 
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
 
     if (!bucket) {
@@ -227,7 +233,7 @@ export default function (
           isInternalDir: false,
         },
         {
-          _id: fileId,
+          _id: fileId as any,
         },
       ],
     });
@@ -254,7 +260,8 @@ export default function (
     const { id } = req.params as { id: string };
 
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
 
     if (!bucket) throw new BadRequestError();
@@ -270,7 +277,8 @@ export default function (
     const { id } = req.params as { id: string };
 
     const bucket = await Bucket.findOne({
-      $and: [{ _id: id }, { user: user }],
+      _id: id as any,
+      user: user,
     });
 
     if (!bucket) throw new BadRequestError();
@@ -301,7 +309,7 @@ export default function (
     }
 
     const bucket = await Bucket.findOne({
-      _id: id,
+      _id: id as any,
       user,
     });
 
@@ -316,7 +324,7 @@ export default function (
     }
 
     const object = await BucketObject.findOne({
-      object: fileId,
+      _id: fileId as any,
       bucket: bucket._id,
       isInternalDir: false,
     });
@@ -342,10 +350,10 @@ export default function (
 
     let start = NaN,
       end = NaN;
-
+    console.log(object);
     if (req.headers.range) {
       let ranges = req.headers.range.replace(/bytes=/, "").split("-");
-      console.log(ranges);
+
       start = parseInt(ranges[0], 10);
       end = ranges[1] ? parseInt(ranges[1], 10) : NaN;
     } else {
