@@ -5,6 +5,8 @@ import FormData from "form-data";
 import { download } from "./defaultDownloader";
 import CustomDownloadStream from "./CustomDownloadStream";
 import { get } from "https";
+import { URL } from "url";
+import { emit } from "process";
 
 const MAX_UPLOAD_SIZE = 8 * 1024 * 1000;
 
@@ -39,13 +41,30 @@ export default class WebHookFileUploader extends FileUploader {
   }
   protected async _download(url: string): Promise<CustomDownloadStream> {
     return new CustomDownloadStream({
-      read: () => {
-        const stream = new Readable();
+      read: (start, end) => {
+        const stream = new Readable({ read: () => {} });
+        console.log("downloading " + url);
+        console.log(start + " - " + end);
+        get(
+          url,
+          {
+            headers: {
+              range: `bytes=${start}-${end - 1}`,
+            },
+          },
+          (res) => {
+            let i = 0;
+            res.on("data", (data) => {
+              i += data.length;
+              stream.push(data);
+            });
 
-        get(url, (res) => {
-          res.on("data", (data) => stream.push(data));
-          res.on("end", () => stream.emit("end"));
-        });
+            res.on("end", () => {
+              console.log("i %d", i);
+              stream.emit("end");
+            });
+          }
+        );
 
         return stream;
       },
@@ -54,39 +73,52 @@ export default class WebHookFileUploader extends FileUploader {
   }
 
   protected async _upload(stream: Readable): Promise<string> {
-    const formData = new FormData({ maxDataSize: Infinity });
+    stream.pause();
+    return new Promise(async (resolve) => {
+      const formData = new FormData({ maxDataSize: Infinity });
+      stream.on("data", (d) => {
+        console.log("received %d", d.length);
+      });
+      formData.append(
+        "payload_json",
+        JSON.stringify({
+          content: "_upload",
+          attachments: [
+            {
+              id: 0,
+              description: "_upload",
+              filename: "data.dat",
+            },
+          ],
+        }),
+        {
+          contentType: "application/json",
+        }
+      );
+      const chunks: Buffer[] = [];
+      stream.on("data", (chunk) => {
+        chunks.push(chunk);
+      });
 
-    formData.append(
-      "payload_json",
-      JSON.stringify({
-        content: "_upload",
-        attachments: [
-          {
-            id: 0,
-            description: "_upload",
-            filename: "data.dat",
+      stream.on("end", async () => {
+        const d = Buffer.concat(chunks);
+        console.log(d.length);
+        formData.append("files[0]", d, {
+          filename: `data.dat`,
+          contentType: "application/octet-stream",
+        });
+
+        const data = await this.restManager.post<Response>({
+          endpoint: `/webhooks/${this.webHookId}/${this.webHookToken}`,
+          body: formData,
+          headers: formData.getHeaders(),
+          query: {
+            wait: "true",
           },
-        ],
-      }),
-      {
-        contentType: "application/json",
-      }
-    );
-
-    formData.append("files[0]", stream, {
-      filename: `data.dat`,
-      contentType: "application/octet-stream",
+        });
+        return resolve(data.attachments[0].url);
+      });
+      stream.resume();
     });
-
-    const data = await this.restManager.post<Response>({
-      endpoint: `/webhooks/${this.webHookId}/${this.webHookToken}`,
-      body: formData,
-      headers: formData.getHeaders(),
-      query: {
-        wait: "true",
-      },
-    });
-
-    return data.attachments[0].url;
   }
 }

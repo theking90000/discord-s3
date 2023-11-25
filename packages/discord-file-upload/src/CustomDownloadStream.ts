@@ -95,16 +95,16 @@ export default class CustomDownloadStream extends Readable {
       let chunks: { start: number; end: number }[] = [];
       if (this.chunkSize) {
         let chunkBegin = start - (start % this.chunkSize);
+        console.log("chunkBegin " + chunkBegin);
         while (chunkBegin < end) {
           chunks.push({
-            start: chunkBegin,
-            end: (chunkBegin += this.chunkSize),
+            start: Math.max(chunkBegin, start),
+            end: Math.min((chunkBegin += this.chunkSize), end),
           });
         }
       } else {
         chunks.push({ start, end });
       }
-      console.info(chunks);
 
       for (const chunk of chunks) {
         let currentBytesStreamed = 0;
@@ -114,46 +114,55 @@ export default class CustomDownloadStream extends Readable {
           return;
         }
         console.log("Will process ", chunk);
-        await this.downloadChunk(chunk.start, chunk.end, (data) => {
-          currentBytesStreamed += data.length;
-          /*console.log(
+        await this.downloadChunk(
+          chunk.start /* - start */,
+          chunk.end /* - chunk.start */,
+          (data) => {
+            currentBytesStreamed += data.length;
+            /*console.log(
             "downloadChunk (%d-%d) | %d (+%d)",
             chunk.start,
             chunk.end,
             currentBytesStreamed,
             data.length
           ); */
-          let diff = start - chunk.start;
-          let diffEnd = end - chunk.start;
+            let diff = start - chunk.start;
+            let diffEnd = end - chunk.start;
 
-          console.log("diff %d", diff);
-          console.log("diffEnd %d", diffEnd);
-          console.log(chunk);
-          console.log(`end ${end} - chunk.start ${chunk.start}`);
-          if (currentBytesStreamed >= diff) {
-            if (diff < 0) diff = 0;
-            if (diffEnd < 0 || diffEnd === diff) diffEnd = chunk.end;
-            if (!first) {
-              first = true;
-              console.log("push (with diff %d, diffEnd %d)", diff, diffEnd);
-              console.log(data.subarray(diff, diffEnd).length);
-              try {
-                thisStream.push(
-                  bufferAcc
+            // console.log("diffEnd %d", diffEnd);
+            // console.log(chunk);
+            // console.log(`end ${end} - chunk.start ${chunk.start}`);
+            console.log(currentBytesStreamed + " - " + diff);
+            if (currentBytesStreamed >= diff) {
+              if (diff < 0) diff = 0;
+              if (diffEnd < 0 || diffEnd === diff) diffEnd = chunk.end;
+              if (!first) {
+                first = true;
+                console.log("push (with diff %d, diffEnd %d)", diff, diffEnd);
+                console.log(
+                  (bufferAcc
                     ? bufferAcc.subarray(diff, diffEnd)
                     : data.subarray(diff, diffEnd)
+                  ).length
                 );
-              } catch (e) {
-                console.error(e);
+                try {
+                  thisStream.push(
+                    bufferAcc
+                      ? bufferAcc.subarray(diff, diffEnd)
+                      : data.subarray(diff, diffEnd)
+                  );
+                } catch (e) {
+                  console.error(e);
+                }
+                bufferAcc = undefined;
+              } else {
+                thisStream.push(data);
               }
-              bufferAcc = undefined;
-            } else {
-              thisStream.push(data);
-            }
-          } else if (!first) {
-            bufferAcc = bufferAcc ? Buffer.concat([bufferAcc, data]) : data;
+            } else if (!first)
+              bufferAcc = bufferAcc ? Buffer.concat([bufferAcc, data]) : data;
           }
-        });
+        );
+        //currentBytesStreamed = 0;
       }
       this.checkEnd();
       this.unLock();

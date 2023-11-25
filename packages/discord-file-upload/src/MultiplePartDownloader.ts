@@ -50,7 +50,7 @@ export default class MultiplePartDownloader extends Lockable {
       await this.useLock();
       this.lock();
       const chunks = this.getChunks(start, end);
-
+      console.log("selected chunks " + chunks);
       for (const chunk of chunks) {
         if (stream.destroyed) return;
         await new Promise<void>(async (resolve) => {
@@ -80,6 +80,7 @@ export default class MultiplePartDownloader extends Lockable {
           async read() {
             if (first) {
               first = false;
+              console.log("read %d - %d", start, end);
               startReader(start, end, this).then(() => {
                 this.emit("end");
               });

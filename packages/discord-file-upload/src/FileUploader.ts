@@ -51,9 +51,10 @@ export default abstract class FileUploader {
         .on("data", (data) => {
           size += data.length;
           totalSize += data.length;
-
+          console.log(totalSize);
           if (size > this.maxUploadSize) {
-            dest?.end();
+            console.log("emit end");
+            //dest?.end();
             dest?.emit("end");
             (dest as any)._ended = true;
             dest = null;
